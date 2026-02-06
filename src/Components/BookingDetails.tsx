@@ -1,13 +1,56 @@
 import { useParams, Link } from 'react-router-dom';
 import { 
-  Calendar, Clock, Scissors, DollarSign, User, Store, 
+  Calendar, Scissors, DollarSign, User, Store, 
   ArrowLeft, AlertTriangle 
 } from 'lucide-react';
-import useBookingById from '../hooks/useBookingById'; // adjust path
+import useBookingById from '../hooks/useBookingById'; 
+
+// 1. Define the Interface so TypeScript knows exactly what a "Booking" is
+interface Booking {
+  _id: string;
+  bookingStatus: string;
+  paymentStatus: string;
+  bookingDate: string;
+  bookingTimestamp: string;
+  totalDuration: number;
+  totalPrice: number;
+  amountPaid: number;
+  amountToPay: number;
+  remainingAmount: number;
+  paymentType: string;
+  timeSlot: {
+    startingTime: string;
+    endingTime: string;
+  };
+  services: Array<{
+    _id: string;
+    name: string;
+    duration: number;
+    price: number;
+  }>;
+  userId: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+  };
+  shopId: {
+    ShopName: string;
+  };
+  barberId: {
+    BarberName: string;
+  };
+}
 
 const BookingDetails = () => {
   const { id } = useParams<{ id: string }>();
-  const { booking, loading, error, refetch } = useBookingById(id);
+  
+  // 2. We cast "booking" as the Booking interface to stop the "never" errors
+  const { booking, loading, error, refetch } = useBookingById(id) as {
+    booking: Booking | null;
+    loading: boolean;
+    error: string | null;
+    refetch: () => void;
+  };
 
   if (loading) {
     return (
@@ -63,7 +106,11 @@ const BookingDetails = () => {
       </span>;
     }
 
-    const styles = {
+    // FIX for the indexing error (TS7053)
+    const styles: { 
+      booking: Record<string, string>; 
+      payment: Record<string, string> 
+    } = {
       booking: {
         pending: 'bg-amber-100 text-amber-800 border-amber-200',
         cancelled: 'bg-red-100 text-red-800 border-red-200',
@@ -86,7 +133,6 @@ const BookingDetails = () => {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-6 md:py-8">
-      {/* Top bar with Back button */}
       <div className="mb-6">
         <Link
           to="/bookings"
@@ -97,7 +143,6 @@ const BookingDetails = () => {
         </Link>
       </div>
 
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Booking Details</h1>
@@ -115,9 +160,7 @@ const BookingDetails = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left + Center – Main content */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Appointment Card */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="bg-blue-50 px-6 py-4 border-b border-blue-100">
               <h2 className="text-lg font-semibold text-blue-800 flex items-center gap-2.5">
@@ -153,7 +196,6 @@ const BookingDetails = () => {
             </div>
           </div>
 
-          {/* Services Card */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="bg-blue-50 px-6 py-4 border-b border-blue-100">
               <h2 className="text-lg font-semibold text-blue-800 flex items-center gap-2.5">
@@ -187,9 +229,7 @@ const BookingDetails = () => {
           </div>
         </div>
 
-        {/* Right Sidebar */}
         <div className="space-y-6">
-          {/* Customer */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="bg-blue-50 px-6 py-4 border-b border-blue-100">
               <h2 className="text-lg font-semibold text-blue-800 flex items-center gap-2.5">
@@ -206,7 +246,6 @@ const BookingDetails = () => {
             </div>
           </div>
 
-          {/* Barber & Shop */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="bg-blue-50 px-6 py-4 border-b border-blue-100">
               <h2 className="text-lg font-semibold text-blue-800 flex items-center gap-2.5">
@@ -225,7 +264,6 @@ const BookingDetails = () => {
             </div>
           </div>
 
-          {/* Payment */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="bg-blue-50 px-6 py-4 border-b border-blue-100">
               <h2 className="text-lg font-semibold text-blue-800 flex items-center gap-2.5">
@@ -238,11 +276,11 @@ const BookingDetails = () => {
                 {getStatusBadge(booking.paymentStatus, 'payment')}
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Amount Paid</span>
+                <span className="text-gray-600">Paid</span>
                 <span className="font-semibold text-gray-900">₹{booking.amountPaid.toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Amount to Pay</span>
+                <span className="text-gray-600">Total Due</span>
                 <span className="font-semibold text-gray-900">₹{booking.amountToPay.toLocaleString()}</span>
               </div>
               {booking.remainingAmount > 0 && (
@@ -252,7 +290,7 @@ const BookingDetails = () => {
                 </div>
               )}
               <div className="pt-3 border-t text-sm text-gray-600">
-                Payment Type: <span className="font-medium capitalize text-gray-800">{booking.paymentType}</span>
+                Type: <span className="font-medium capitalize text-gray-800">{booking.paymentType}</span>
               </div>
             </div>
           </div>

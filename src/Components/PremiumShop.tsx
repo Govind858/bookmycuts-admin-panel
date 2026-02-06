@@ -1,7 +1,7 @@
 // src/Components/PremiumShopsList.tsx
 import React, { useState, useEffect } from 'react';
 import { fetchAllPremiumShops } from "../Apis/Admin-Api";
-import { Crown, MapPin, Phone, Globe, Clock, Store } from 'lucide-react';
+import { Crown, Store } from 'lucide-react';
 
 interface PremiumShop {
   _id: string;

@@ -1,8 +1,8 @@
 // src/pages/admin/ShopOwnersList.tsx
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';           // ← add this
+import { useNavigate } from 'react-router-dom';
 import { fetchAllShopOwners } from '../Apis/Admin-Api';
-import { User, Phone, Mail, MapPin, Eye, ShieldCheck } from 'lucide-react';
+import { User, Eye } from 'lucide-react'; // Removed unused ShieldCheck, Mail, etc.
 
 // ────────────────────────────────────────────────
 // Type definition
@@ -18,27 +18,10 @@ interface ShopOwner {
 }
 
 // ────────────────────────────────────────────────
-// Reusable detail item (can stay if you want to reuse it later)
-// ────────────────────────────────────────────────
-const DetailItem: React.FC<{
-  icon: React.ElementType;
-  label: string;
-  value: string | number;
-}> = ({ icon: Icon, label, value }) => (
-  <div className="flex items-start gap-3 py-1">
-    <Icon className="h-5 w-5 text-gray-500 mt-0.5 flex-shrink-0" />
-    <div className="flex-1 min-w-0">
-      <div className="text-sm font-medium text-gray-500">{label}</div>
-      <div className="text-base text-gray-900 break-words">{value || '—'}</div>
-    </div>
-  </div>
-);
-
-// ────────────────────────────────────────────────
 // Main List Component
 // ────────────────────────────────────────────────
 const ShopOwnersList: React.FC = () => {
-  const navigate = useNavigate();                        // ← add this
+  const navigate = useNavigate();
   const [owners, setOwners] = useState<ShopOwner[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -55,25 +38,22 @@ const ShopOwnersList: React.FC = () => {
 
       try {
         const response = await fetchAllShopOwners(page, limit);
-        const data = response?.data || response; // adjust depending on your axios setup
+        // Accessing .data to avoid the AxiosResponse type error
+        const data = response?.data || response;
 
         if (!data?.success) {
           throw new Error(data?.message || 'Failed to fetch owners');
         }
 
         const receivedOwners = data.shopOwners || data.data || [];
-
         setOwners(receivedOwners);
 
         // Simple last-page detection
         if (receivedOwners.length < limit) {
           setTotalPages(page);
         } else {
-          setTotalPages(page + 1); // optimistic
+          setTotalPages(page + 1);
         }
-
-        // Better → if your backend sends total:
-        // setTotalPages(data.totalPages || Math.ceil(data.totalCount / limit));
       } catch (err: any) {
         console.error('Error fetching shop owners:', err);
         setError(err.message || 'Failed to load shop owners.');
@@ -89,7 +69,10 @@ const ShopOwnersList: React.FC = () => {
     const term = searchTerm.toLowerCase().trim();
     if (!term) return true;
 
-    const fullName = `${owner.firstName || ''} ${owner.lastName || ''}`.toLowerCase();
+    const firstName = owner.firstName || '';
+    const lastName = owner.lastName || '';
+    const fullName = `${firstName} ${lastName}`.toLowerCase();
+    
     return (
       fullName.includes(term) ||
       (owner.email || '').toLowerCase().includes(term) ||
@@ -99,10 +82,7 @@ const ShopOwnersList: React.FC = () => {
   });
 
   const handleView = (ownerId: string) => {
-    navigate(`/admin/shop-owners/${ownerId}`);           // ← or /view-shop-owner/${ownerId}
-    // Alternative paths you might prefer:
-    // navigate(`/shop-owner/${ownerId}`);
-    // navigate(`/admin/view-shop-owner/${ownerId}`);
+    navigate(`/admin/shop-owners/${ownerId}`);
   };
 
   const handlePageChange = (newPage: number) => {
@@ -142,30 +122,25 @@ const ShopOwnersList: React.FC = () => {
           </div>
         </div>
 
-        {/* Loading */}
+        {/* Loading / Error / No Results States */}
         {loading && (
           <div className="flex justify-center items-center py-20">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
           </div>
         )}
 
-        {/* Error */}
         {error && !loading && (
           <div className="bg-red-50 border border-red-200 rounded-xl p-8 text-center">
             <p className="text-red-700 font-medium">{error}</p>
           </div>
         )}
 
-        {/* No results */}
         {!loading && !error && filteredOwners.length === 0 && (
           <div className="bg-gray-50 border border-gray-200 rounded-xl p-12 text-center">
             <User className="h-12 w-12 text-gray-400 mx-auto" />
             <h3 className="mt-4 text-lg font-medium text-gray-900">
               {searchTerm ? "No matching owners found" : "No shop owners registered yet"}
             </h3>
-            <p className="mt-2 text-gray-600">
-              {searchTerm ? "Try different keywords" : "New owners will appear here"}
-            </p>
           </div>
         )}
 
@@ -176,60 +151,42 @@ const ShopOwnersList: React.FC = () => {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Owner
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Contact
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Location
-                    </th>
-                    <th className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Owner</th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                    <th className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {filteredOwners.map((owner) => {
-                    const fullName = `${owner.firstName?.trim() || ''} ${owner.lastName?.trim() || ''}`.trim();
-
-                    return (
-                      <tr key={owner._id} className="hover:bg-gray-50 transition-colors">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center gap-3">
-                            <div className="flex-shrink-0 h-10 w-10 bg-indigo-100 rounded-full flex items-center justify-center">
-                              <User className="h-5 w-5 text-indigo-600" />
-                            </div>
-                            <div>
-                              <div className="text-sm font-medium text-gray-900">{fullName || '—'}</div>
-                              <div className="text-xs text-gray-500">ID: {owner._id.slice(-8)}</div>
-                            </div>
+                  {filteredOwners.map((owner) => (
+                    <tr key={owner._id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center gap-3">
+                          <div className="flex-shrink-0 h-10 w-10 bg-indigo-100 rounded-full flex items-center justify-center">
+                            <User className="h-5 w-5 text-indigo-600" />
                           </div>
-                        </td>
-
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                          {owner.mobileNo || '—'}
-                        </td>
-
-                        <td className="px-6 py-4">
-                          <div className="text-sm text-gray-700">
-                            {owner.city?.trim() || '—'}
+                          <div>
+                            <div className="text-sm font-medium text-gray-900">
+                              {`${owner.firstName || ''} ${owner.lastName || ''}`.trim() || '—'}
+                            </div>
+                            <div className="text-xs text-gray-500">ID: {owner._id.slice(-8)}</div>
                           </div>
-                        </td>
-
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <button
-                            onClick={() => handleView(owner._id)}
-                            className="text-indigo-600 hover:text-indigo-900 flex items-center gap-1 justify-end ml-auto"
-                          >
-                            <Eye size={16} />
-                            View
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{owner.mobileNo || '—'}</td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm text-gray-700">{owner.city || '—'}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button
+                          onClick={() => handleView(owner._id)}
+                          className="text-indigo-600 hover:text-indigo-900 flex items-center gap-1 justify-end ml-auto"
+                        >
+                          <Eye size={16} /> View
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
@@ -243,46 +200,9 @@ const ShopOwnersList: React.FC = () => {
               >
                 Previous
               </button>
-
-              <div className="hidden sm:flex items-center gap-2">
-                {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
-                  const pageNum = i + 1;
-                  return (
-                    <button
-                      key={pageNum}
-                      onClick={() => handlePageChange(pageNum)}
-                      className={`px-4 py-2 rounded-md text-sm font-medium ${
-                        page === pageNum
-                          ? 'bg-indigo-600 text-white'
-                          : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
-                      }`}
-                    >
-                      {pageNum}
-                    </button>
-                  );
-                })}
-
-                {totalPages > 7 && (
-                  <>
-                    <span className="text-gray-500">...</span>
-                    <button
-                      onClick={() => handlePageChange(totalPages)}
-                      className={`px-4 py-2 rounded-md text-sm font-medium ${
-                        page === totalPages
-                          ? 'bg-indigo-600 text-white'
-                          : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
-                      }`}
-                    >
-                      {totalPages}
-                    </button>
-                  </>
-                )}
+              <div className="hidden sm:flex items-center gap-2 text-sm text-gray-700">
+                Page {page} of {totalPages}
               </div>
-
-              <div className="sm:hidden text-sm text-gray-700">
-                Page {page} {totalPages > 1 ? `of ${totalPages}` : ''}
-              </div>
-
               <button
                 onClick={() => handlePageChange(page + 1)}
                 disabled={page >= totalPages}

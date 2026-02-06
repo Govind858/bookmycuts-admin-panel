@@ -1,24 +1,39 @@
-// src/pages/admin/ShopBookings.jsx
-import React, { useState, useEffect } from 'react';
+// src/pages/admin/ShopBookings.tsx
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 
-import { fetchShopBookings } from '../Apis/Admin-Api'; // ← adjust path
+import { fetchShopBookings } from '../Apis/Admin-Api'; 
+
+// 1. Define what a Booking looks like to stop 'never' errors
+interface Booking {
+  _id: string;
+  bookingDate: string;
+  bookingStatus: string;
+  totalPrice: number;
+  remainingAmount: number;
+  timeSlot?: {
+    startingTime: string;
+    endingTime: string;
+  };
+  services?: Array<{ name: string }>;
+}
 
 const ShopBookings = () => {
-  const { shopId } = useParams();
+  const { shopId } = useParams<{ shopId: string }>();
   const navigate = useNavigate();
 
-  const [bookings, setBookings] = useState([]);
+  // 2. Fix 'never' errors by typing the array
+  const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  // Filters
-  const [selectedDate, setSelectedDate] = useState(null);
+  // 3. Fix DatePicker type mismatch
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [statusFilter, setStatusFilter] = useState('');
 
   const limit = 10;
@@ -33,7 +48,8 @@ const ShopBookings = () => {
     setError(null);
 
     try {
-      const queryParams = {
+      // 4. Fix "Property does not exist" by defining the object type
+      const queryParams: Record<string, any> = {
         page,
         limit,
       };
@@ -54,7 +70,7 @@ const ShopBookings = () => {
       } else {
         setError(data?.message || "Failed to load bookings");
       }
-    } catch (err) {
+    } catch (err: any) { // 5. Fix 'err is unknown'
       console.error("Failed to fetch bookings:", err);
       setError(
         err.response?.data?.message ||
@@ -72,7 +88,8 @@ const ShopBookings = () => {
     }
   }, [shopId, selectedDate, statusFilter]);
 
-  const handlePageChange = (newPage) => {
+  // 6. Fix "implicitly has any" for parameters
+  const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && newPage <= totalPages && newPage !== currentPage) {
       loadBookings(newPage);
     }
@@ -83,7 +100,7 @@ const ShopBookings = () => {
     setStatusFilter('');
   };
 
-  const formatTime = (dateStr) => {
+  const formatTime = (dateStr: string | undefined) => {
     if (!dateStr) return '—';
     return new Date(dateStr).toLocaleTimeString([], {
       hour: '2-digit',
@@ -92,7 +109,7 @@ const ShopBookings = () => {
     });
   };
 
-  const getStatusDisplay = (status) => {
+  const getStatusDisplay = (status: string) => {
     const s = (status || '').toLowerCase();
     if (s === 'confirmed') return 'Confirmed';
     if (s === 'pending')   return 'Pending';
@@ -107,12 +124,12 @@ const ShopBookings = () => {
         <div className="max-w-md w-full bg-white rounded-lg shadow p-8 text-center">
           <p className="text-xl font-semibold text-gray-800 mb-4">Shop not selected</p>
           <p className="text-gray-600 mb-6">Please select a shop first.</p>
-          <a
-            href="/admin/shops"
+          <button
+            onClick={() => navigate('/admin/shops')}
             className="inline-block px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700"
           >
             Back to Shops
-          </a>
+          </button>
         </div>
       </div>
     );
@@ -120,14 +137,13 @@ const ShopBookings = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-12">
-      {/* Filters */}
       <div className="bg-white border-b sticky top-0 z-10 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-wrap items-center gap-4">
             <div className="w-56">
               <DatePicker
                 selected={selectedDate}
-                onChange={setSelectedDate}
+                onChange={(date: Date | null) => setSelectedDate(date)}
                 dateFormat="dd MMM yyyy"
                 placeholderText="Filter by date"
                 isClearable
@@ -178,27 +194,16 @@ const ShopBookings = () => {
           </div>
         ) : (
           <>
-            {/* Table */}
             <div className="bg-white shadow-sm rounded-lg overflow-hidden border border-gray-200">
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        Date & Time
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider hidden md:table-cell">
-                        Services
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        Amount
-                      </th>
-                      <th className="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        Action
-                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date & Time</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider hidden md:table-cell">Services</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Amount</th>
+                      <th className="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Action</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-100">
@@ -208,41 +213,28 @@ const ShopBookings = () => {
                         <tr key={booking._id} className="hover:bg-gray-50">
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="text-sm font-medium text-gray-900">
-                              {date.toLocaleDateString('en-GB', {
-                                day: '2-digit',
-                                month: 'short',
-                                year: 'numeric',
-                              })}
+                              {date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
                             </div>
                             <div className="text-sm text-gray-500">
-                              {formatTime(booking.timeSlot?.startingTime)} –{' '}
-                              {formatTime(booking.timeSlot?.endingTime)}
+                              {formatTime(booking.timeSlot?.startingTime)} – {formatTime(booking.timeSlot?.endingTime)}
                             </div>
                           </td>
-
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-50 text-blue-800 border border-blue-200">
                               {getStatusDisplay(booking.bookingStatus)}
                             </span>
                           </td>
-
                           <td className="px-6 py-4 text-sm text-gray-600 hidden md:table-cell">
-                            {booking.services?.length > 0
+                            {booking.services && booking.services.length > 0
                               ? booking.services.map(s => s.name).join(', ')
                               : '—'}
                           </td>
-
                           <td className="px-6 py-4 whitespace-nowrap text-sm">
-                            <div className="font-medium text-gray-900">
-                              ₹{booking.totalPrice || 0}
-                            </div>
+                            <div className="font-medium text-gray-900">₹{booking.totalPrice || 0}</div>
                             {booking.remainingAmount > 0 && (
-                              <div className="text-xs text-red-600">
-                                Due: ₹{booking.remainingAmount}
-                              </div>
+                              <div className="text-xs text-red-600">Due: ₹{booking.remainingAmount}</div>
                             )}
                           </td>
-
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <button
                               onClick={() => navigate(`/bookings/${booking._id}`)}
@@ -259,7 +251,6 @@ const ShopBookings = () => {
               </div>
             </div>
 
-            {/* Pagination */}
             {totalPages > 1 && (
               <div className="mt-8 flex items-center justify-center gap-3">
                 <button
@@ -269,11 +260,7 @@ const ShopBookings = () => {
                 >
                   Previous
                 </button>
-
-                <span className="text-sm text-gray-700">
-                  Page {currentPage} of {totalPages}
-                </span>
-
+                <span className="text-sm text-gray-700">Page {currentPage} of {totalPages}</span>
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages}

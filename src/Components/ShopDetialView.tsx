@@ -10,7 +10,6 @@ import {
   ArrowLeft,
   Edit,
   Trash2,
-  ShieldCheck,
   Loader2,
   Star,
   Save,

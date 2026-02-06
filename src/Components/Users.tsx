@@ -1,7 +1,7 @@
 // src/pages/admin/UsersList.tsx  (or wherever you place it)
 import React, { useState, useEffect } from 'react';
 import { fetchAllUsers } from "../Apis/Admin-Api";
-import { User, Mail, Phone, MapPin, ShieldCheck } from 'lucide-react';
+import { User,  Phone, MapPin,  } from 'lucide-react';
 
 interface User {
   _id: string;

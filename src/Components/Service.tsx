@@ -4,9 +4,10 @@ import { fetchServiceByShop } from "../Apis/Admin-Api";
 
 const ShopServices = () => {
   const { shopId } = useParams();
-  const [services, setServices] = useState([]);
+  const [services, setServices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
+
 
   useEffect(() => {
     const loadServices = async () => {

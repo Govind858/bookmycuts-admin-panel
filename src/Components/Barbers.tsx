@@ -4,10 +4,9 @@ import { fetchBarbersByShop } from "../Apis/Admin-Api";
 
 const ShopBarbers = () => {
   const { shopId } = useParams();
-  const [barbers, setBarbers] = useState([]);
+  const [barbers, setBarbers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
+  const [error, setError] = useState<string | null>(null);
   useEffect(() => {
     const loadBarbers = async () => {
       if (!shopId) {

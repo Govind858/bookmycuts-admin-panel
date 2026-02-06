@@ -1,11 +1,8 @@
 // Dashboard.tsx
-import React from 'react';
 import {
   Calendar,
   Crown,
-  ShoppingBag,
   Store,
-  TrendingUp,
   Users,
 } from 'lucide-react';
 import {

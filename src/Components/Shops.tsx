@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; // ← added
 import { fetchAllShops } from "../Apis/Admin-Api";
-import { Store, MapPin, Phone, Crown, Eye, Search } from 'lucide-react';
+import { Store, Crown, Eye, Search } from 'lucide-react';
 
 // ────────────────────────────────────────────────
 // Type definition for a shop

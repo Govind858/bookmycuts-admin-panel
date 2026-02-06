@@ -1,6 +1,29 @@
-const BookingFilters = ({ filters, setFilters }) => {
+import React from 'react';
+
+// 1. Define the shape of your filters
+interface FilterState {
+  page: number;
+  limit: number;
+  period: string;
+  date: string;
+  startDate: string;
+  endDate: string;
+  bookingStatus: string;
+  paymentStatus: string;
+}
+
+// 2. Define the Props interface
+interface BookingFiltersProps {
+  filters: FilterState;
+  // This is the standard type for a React setState function
+  setFilters: React.Dispatch<React.SetStateAction<FilterState>>;
+}
+
+const BookingFilters: React.FC<BookingFiltersProps> = ({ filters, setFilters }) => {
+  
   // Helper to reset page to 1 and spread previous filters
-  const updateFilters = (newValues) => {
+  // Fixed: Added type for newValues (Partial means any subset of FilterState)
+  const updateFilters = (newValues: Partial<FilterState>) => {
     setFilters((prev) => ({
       ...prev,
       ...newValues,
@@ -8,7 +31,7 @@ const BookingFilters = ({ filters, setFilters }) => {
     }));
   };
 
-  const handlePeriodChange = (period) => {
+  const handlePeriodChange = (period: string) => {
     updateFilters({
       period,
       date: "",
@@ -17,7 +40,7 @@ const BookingFilters = ({ filters, setFilters }) => {
     });
   };
 
-  const handleSingleDate = (date) => {
+  const handleSingleDate = (date: string) => {
     updateFilters({
       date,
       period: "",
@@ -67,8 +90,8 @@ const BookingFilters = ({ filters, setFilters }) => {
               updateFilters({ bookingStatus: e.target.value })
             }
             className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-lg 
-                     shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 
-                     text-gray-700 text-sm transition-colors"
+                       shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 
+                       text-gray-700 text-sm transition-colors"
           >
             <option value="">All Booking Status</option>
             <option value="pending">Pending</option>
@@ -89,8 +112,8 @@ const BookingFilters = ({ filters, setFilters }) => {
               updateFilters({ paymentStatus: e.target.value })
             }
             className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-lg 
-                     shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 
-                     text-gray-700 text-sm transition-colors"
+                       shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 
+                       text-gray-700 text-sm transition-colors"
           >
             <option value="">All Payment Status</option>
             <option value="unpaid">Unpaid</option>
@@ -110,8 +133,8 @@ const BookingFilters = ({ filters, setFilters }) => {
             value={filters.date || ""}
             onChange={(e) => handleSingleDate(e.target.value)}
             className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-lg 
-                     shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 
-                     text-gray-700 text-sm"
+                       shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 
+                       text-gray-700 text-sm"
           />
         </div>
 
@@ -127,8 +150,8 @@ const BookingFilters = ({ filters, setFilters }) => {
               value={filters.startDate || ""}
               onChange={(e) => updateFilters({ startDate: e.target.value })}
               className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-lg 
-                       shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 
-                       text-gray-700 text-sm"
+                         shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 
+                         text-gray-700 text-sm"
             />
             <input
               type="date"
@@ -136,8 +159,8 @@ const BookingFilters = ({ filters, setFilters }) => {
               value={filters.endDate || ""}
               onChange={(e) => updateFilters({ endDate: e.target.value })}
               className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-lg 
-                       shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 
-                       text-gray-700 text-sm"
+                         shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 
+                         text-gray-700 text-sm"
             />
           </div>
         </div>
@@ -145,24 +168,23 @@ const BookingFilters = ({ filters, setFilters }) => {
 
       {/* Optional: Reset filters button */}
       <div className="flex justify-end">
-        <button
-          type="button"
-          onClick={() =>
-            setFilters({
-              page: 1,
-              period: "",
-              date: "",
-              startDate: "",
-              endDate: "",
-              bookingStatus: "",
-              paymentStatus: "",
-            })
-          }
-          className="px-5 py-2 text-sm font-medium text-gray-600 bg-gray-100 
-                   hover:bg-gray-200 border border-gray-300 rounded-lg transition-colors"
-        >
-          Reset Filters
-        </button>
+            <button
+  type="button"
+  onClick={() =>
+    setFilters({
+      page: 1,
+      limit: 10, // <--- ADD THIS LINE (or whatever your default limit is)
+      period: "",
+      date: "",
+      startDate: "",
+      endDate: "",
+      bookingStatus: "",
+      paymentStatus: "",
+    })
+  }
+>
+  Reset Filters
+</button>
       </div>
     </div>
   );
