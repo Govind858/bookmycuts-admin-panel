@@ -48,8 +48,8 @@ export const fetchAllPremiumShops = async (): Promise<any> => {
 };
 
 export const fetchAllBooking = async (
-  page: number = 1,
-  limit: number = 10
+  page: number,
+  limit: number
 ): Promise<any> => {
   try {
     const response = await axios.get(`bookings`, {
@@ -134,14 +134,9 @@ export const fetchShop = async (shopId: string): Promise<any> => {
 };
 
 export const fetchBookings = async (params: Record<string, any>): Promise<any> => {
-  try {
-    const response = await axios.get("/booking/bookings", { params });
-    console.log("response:", response);
-    return response;
-  } catch (error) {
-    console.error("error in fetchBookings", error);
-    throw error;
-  }
+  const response = await axios.get("/booking/bookings", { params });
+  console.log("response:", response);
+  return response;
 };
 
 export const fetchBookingById = async (bookingId: string): Promise<any> => {
