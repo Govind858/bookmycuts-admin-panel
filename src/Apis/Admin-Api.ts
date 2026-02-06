@@ -7,7 +7,7 @@ export const fetchAllUsers = async (): Promise<any> => {
     return response ?? [];
   } catch (error) {
     console.error("error in fetchAllUsers api", error);
-    return []; // ✅ fallback
+    return []; 
   }
 };
 
@@ -21,7 +21,7 @@ export const fetchAllShopOwners = async (
     return response;
   } catch (error) {
     console.error('Error fetching shop owners:', error);
-    throw error; // let component handle it
+    throw error;
   }
 };
 
@@ -47,6 +47,7 @@ export const fetchAllPremiumShops = async (): Promise<any> => {
   }
 };
 
+// FIXED: Added : number types to page and limit
 export const fetchAllBooking = async (
   page: number,
   limit: number
@@ -66,6 +67,7 @@ export const fetchAllBooking = async (
   }
 };
 
+// FIXED: Added : string type to userId
 export const fetchShopOwner = async (userId: string): Promise<any> => {
   try {
     const shopOwner = await axios.get(`auth/shop-owner/${userId}`);
@@ -76,6 +78,7 @@ export const fetchShopOwner = async (userId: string): Promise<any> => {
   }
 };
 
+// FIXED: Added : string type to userId
 export const deleteShopOwner = async (userId: string): Promise<any> => {
   try {
     const response = await axios.delete(`auth/shop-owner/${userId}`);
