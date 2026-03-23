@@ -1,7 +1,7 @@
 // src/components/Sidebar.tsx
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { X, Users, Store, Crown, TrendingUp, ShoppingBag,Book  } from 'lucide-react';
+import { X, Users, Store, Crown, TrendingUp, ShoppingBag, Book, Palette, Bell } from 'lucide-react';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -12,13 +12,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const location = useLocation(); // ← get current route
 
   const menuItems = [
-    { id: 'dashboard', path: '/', label: 'Dashboard', icon: TrendingUp },
-    { id: 'shop-owners', path: '/shop-owners', label: 'Shop Owners', icon: Users },
-    { id: 'premium-shops', path: '/premium-shops', label: 'All Premium Shops', icon: Crown },
-    { id: 'shops', path: '/shops', label: 'Shops', icon: Store },
-    { id: 'users', path: '/users', label: 'Users', icon: ShoppingBag },
-    { id: 'booking', path: '/bookings', label: 'Bookings', icon: Book },
-
+    { id: 'dashboard', path: '/admin', label: 'Dashboard', icon: TrendingUp },
+    { id: 'shop-owners', path: '/admin/shop-owners', label: 'Shop Owners', icon: Users },
+    { id: 'premium-shops', path: '/admin/premium-shops', label: 'All Premium Shops', icon: Crown },
+    { Sidebarid: 'shops', path: '/admin/shops', label: 'Shops', icon: Store },
+    { id: 'users', path: '/admin/users', label: 'Users', icon: ShoppingBag },
+    { id: 'booking', path: '/admin/bookings', label: 'Bookings', icon: Book },
+    { id: 'customization', path: '/admin/customization', label: 'Customization', icon: Palette },
+    { id: 'notifications', path: '/admin/notifications', label: 'Notifications', icon: Bell },
   ];
 
   return (

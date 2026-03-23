@@ -14,28 +14,45 @@ import BookingDetails from './Components/BookingDetails';
 import ShopBookingsScreen from './Components/ShopBooking';
 import ShopServices from './Components/Service';
 import ShopBarbers from './Components/Barbers';
+import Barbers from './Components/Barbers'
+import Login from './Components/AdminLogin';
+import Customization from './Components/Customization';
+import BroadcastNotification from './Components/BroadcastNotification';
 
 function App() {
   return (
     <Routes>
-      {/* Parent Route with layout */}
-      <Route path="/" element={<MainLayout />}>
-        {/* Index route */}
-        <Route index element={<Dashboard />} />
-        <Route path="/users" element={<Users/>} />
-        <Route path="/shop-owners" element={<ShopOwners/>} />
-        <Route path="/admin/shop-owners/:id" element={<ShopOwnerDetail/>} />
-        <Route path="/shops" element={<ShopsList />} />
-        <Route path="/shops/:shopId" element={<ShopDetialView />} />
-        <Route path="/premium-shops" element={<PremiumShopsList />} />
-        <Route path="/admin/shops/:id" element={<ShopDetail  />} />
-        <Route path="/bookings" element={<Bookings/>} />
-        <Route path='/bookings/:id' element={<BookingDetails/>} />
-        <Route path='/shop-booking/:shopId' element={<ShopBookingsScreen/>} />
-        <Route path='/shop-service/:shopId' element={<ShopServices/>} />
-        <Route path='/shop-barbers/:shopId' element={<ShopBarbers/>} />
-      </Route>
-    </Routes>
+  {/* Root Login */}
+  <Route path="/" element={<Login />} />
+
+  {/* Dashboard Layout */}
+  <Route path="/admin" element={<MainLayout />}>
+
+    <Route index element={<Dashboard />} />
+
+    <Route path="users" element={<Users />} />
+    <Route path="shop-owners" element={<ShopOwners />} />
+    <Route path="shop-owners/:id" element={<ShopOwnerDetail />} />
+
+    <Route path="shops" element={<ShopsList />} />
+    <Route path="shops/:shopId" element={<ShopDetialView />} />
+    <Route path="premium-shops" element={<PremiumShopsList />} />
+    <Route path="shops-detail/:id" element={<ShopDetail />} />
+
+    <Route path="bookings" element={<Bookings />} />
+    <Route path="bookings/:id" element={<BookingDetails />} />
+
+    <Route path="shop-booking/:shopId" element={<ShopBookingsScreen />} />
+    <Route path="shop-service/:shopId" element={<ShopServices />} />
+    <Route path="shop-barbers/:shopId" element={<ShopBarbers />} />
+
+    <Route path="barbers" element={<Barbers />} />
+    <Route path="customization" element={<Customization />} />
+    <Route path="notifications" element={<BroadcastNotification />} />
+
+  </Route>
+</Routes>
+
   );
 }
 

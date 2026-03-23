@@ -1,138 +1,286 @@
-import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { fetchBarbersByShop } from "../Apis/Admin-Api";
+import React, { useState, useEffect } from 'react';
+import { fetchAllBarber } from '../Apis/Admin-Api';
 
-const ShopBarbers = () => {
-  const { shopId } = useParams();
-  const [barbers, setBarbers] = useState<any[]>([]);
+const BarberList = () => {
+  const [barbers, setBarbers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(null);
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalBarbers: 0,
+    hasNextPage: false,
+    hasPreviousPage: false,
+    limit: 10
+  });
+
   useEffect(() => {
-    const loadBarbers = async () => {
-      if (!shopId) {
-        setError("Shop ID is missing");
-        setLoading(false);
-        return;
+    loadBarbers(pagination.currentPage);
+  }, [pagination.currentPage]);
+
+  const loadBarbers = async (page) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const response = await fetchAllBarber(page, pagination.limit);
+      
+      if (response.success) {
+        setBarbers(response.data.barbers);
+        setPagination(response.data.pagination);
+      } else {
+        setError(response.message);
       }
+    } catch (err) {
+      setError('Failed to load barbers. Please try again.');
+      console.error('Error loading barbers:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-      try {
-        setLoading(true);
-        setError(null);
+  const handlePageChange = (newPage) => {
+    setPagination(prev => ({
+      ...prev,
+      currentPage: newPage
+    }));
+  };
 
-        const response = await fetchBarbersByShop(shopId);
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
 
-        if (response?.success && Array.isArray(response.service)) {
-          setBarbers(response.service);
-        } else {
-          setError(response?.message || "Failed to load barbers");
-        }
-      } catch (err) {
-        setError("Failed to fetch barbers. Please try again.");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  if (loading && barbers.length === 0) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
 
-    loadBarbers();
-  }, [shopId]);
+  if (error) {
+    return (
+      <div className="flex flex-col justify-center items-center h-64 space-y-4">
+        <div className="text-red-500 text-lg font-semibold">{error}</div>
+        <button
+          onClick={() => loadBarbers(pagination.currentPage)}
+          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+        >
+          Try Again
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="mb-10 text-center">
-          <h1 className="text-3xl sm:text-4xl font-bold text-blue-800">
-            Barbers
-          </h1>
-          <p className="mt-3 text-gray-600 text-lg">
-            Professional barbers working at this shop
-          </p>
-          {shopId && (
-            <p className="mt-2 text-sm text-gray-500 font-mono">
-              Shop ID: {shopId}
-            </p>
-          )}
+    <div className="container mx-auto px-4 py-8">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold text-gray-800">Barbers Management</h1>
+        <div className="text-sm text-gray-600">
+          Total Barbers: <span className="font-semibold">{pagination.totalBarbers}</span>
         </div>
+      </div>
 
-        {/* Loading */}
-        {loading && (
-          <div className="flex justify-center items-center py-24">
-            <div className="animate-spin rounded-full h-14 w-14 border-t-4 border-blue-600 border-b-4 border-blue-600"></div>
-            <span className="ml-4 text-blue-700 font-medium">Loading barbers...</span>
-          </div>
-        )}
+      {/* Barbers Grid */}
+      {barbers.length === 0 ? (
+        <div className="text-center py-12 bg-gray-50 rounded-lg">
+          <p className="text-gray-500 text-lg">No barbers found</p>
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {barbers.map((barber) => (
+              <div
+                key={barber._id}
+                className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden border border-gray-100"
+              >
+                <div className="p-6">
+                  {/* Barber Avatar/Icon */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="bg-blue-100 p-3 rounded-full">
+                        <svg
+                          className="w-6 h-6 text-blue-600"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                          />
+                        </svg>
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-800">
+                          {barber.BarberName}
+                        </h3>
+                        <p className="text-sm text-gray-500">ID: {barber._id.slice(-6)}</p>
+                      </div>
+                    </div>
+                    
+                    {/* Status Badge */}
+                    <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+                      Active
+                    </span>
+                  </div>
 
-        {/* Error */}
-        {error && !loading && (
-          <div className="max-w-lg mx-auto bg-red-50 border-l-4 border-red-500 p-6 rounded-lg">
-            <p className="text-red-700 font-medium">Error</p>
-            <p className="text-red-600 mt-1">{error}</p>
-          </div>
-        )}
-
-        {/* Content */}
-        {!loading && !error && (
-          <>
-            {barbers.length === 0 ? (
-              <div className="bg-white shadow-lg rounded-xl p-12 text-center max-w-2xl mx-auto">
-                <h3 className="text-xl font-semibold text-gray-700 mb-3">
-                  No barbers found
-                </h3>
-                <p className="text-gray-500">
-                  This shop doesn't have any registered barbers yet.
-                </p>
-              </div>
-            ) : (
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {barbers.map((barber) => (
-                  <div
-                    key={barber._id}
-                    className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 flex flex-col h-full"
-                  >
-                    {/* Header strip */}
-                    <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-5">
-                      <h3 className="text-xl font-bold text-white tracking-wide">
-                        {barber.BarberName}
-                      </h3>
+                  {/* Barber Details */}
+                  <div className="space-y-3">
+                    <div className="flex items-center text-gray-600">
+                      <svg
+                        className="w-4 h-4 mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                      </svg>
+                      <span className="text-sm">{barber.From}</span>
                     </div>
 
-                    {/* Content */}
-                    <div className="p-6 flex flex-col flex-grow">
-                      <div className="space-y-5 flex-grow">
-                        <div>
-                          <p className="text-sm text-gray-500 uppercase tracking-wide font-medium">
-                            From
-                          </p>
-                          <p className="text-gray-900 font-medium text-lg mt-1">
-                            {barber.From || "—"}
-                          </p>
-                        </div>
+                    <div className="flex items-center text-gray-600">
+                      <svg
+                        className="w-4 h-4 mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                        />
+                      </svg>
+                      <span className="text-sm">Shop ID: {barber.shopId.slice(-6)}</span>
+                    </div>
 
-                        {/* You can add more fields here later (photo, contact, services, etc.) */}
-                      </div>
-
-                      {/* Footer info */}
-                      <div className="mt-6 pt-4 border-t border-gray-100 text-xs text-gray-500">
-                        <div className="flex justify-between">
-                          <span>Added:</span>
-                          <span>{new Date(barber.createdAt).toLocaleDateString()}</span>
-                        </div>
-                        <div className="flex justify-between mt-1">
-                          <span>Updated:</span>
-                          <span>{new Date(barber.updatedAt).toLocaleDateString()}</span>
-                        </div>
-                      </div>
+                    <div className="flex items-center text-gray-600">
+                      <svg
+                        className="w-4 h-4 mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        />
+                      </svg>
+                      <span className="text-sm">Joined: {formatDate(barber.createdAt)}</span>
                     </div>
                   </div>
-                ))}
+
+                  {/* Actions */}
+                  <div className="mt-6 flex space-x-2">
+                    <button className="flex-1 px-3 py-2 text-sm bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors">
+                      View Details
+                    </button>
+                    <button className="px-3 py-2 text-sm bg-gray-50 text-gray-600 rounded-lg hover:bg-gray-100 transition-colors">
+                      Edit
+                    </button>
+                  </div>
+                </div>
               </div>
-            )}
-          </>
-        )}
-      </div>
+            ))}
+          </div>
+
+          {/* Pagination */}
+          {pagination.totalPages > 1 && (
+            <div className="flex justify-center items-center space-x-2 mt-8">
+              <button
+                onClick={() => handlePageChange(pagination.currentPage - 1)}
+                disabled={!pagination.hasPreviousPage}
+                className={`px-4 py-2 rounded-lg ${
+                  pagination.hasPreviousPage
+                    ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                } transition-colors`}
+              >
+                Previous
+              </button>
+              
+              <div className="flex space-x-1">
+                {[...Array(pagination.totalPages)].map((_, index) => {
+                  const pageNumber = index + 1;
+                  // Show only current page, first, last, and adjacent pages
+                  if (
+                    pageNumber === 1 ||
+                    pageNumber === pagination.totalPages ||
+                    (pageNumber >= pagination.currentPage - 1 &&
+                      pageNumber <= pagination.currentPage + 1)
+                  ) {
+                    return (
+                      <button
+                        key={pageNumber}
+                        onClick={() => handlePageChange(pageNumber)}
+                        className={`px-4 py-2 rounded-lg ${
+                          pagination.currentPage === pageNumber
+                            ? 'bg-blue-500 text-white'
+                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                        } transition-colors`}
+                      >
+                        {pageNumber}
+                      </button>
+                    );
+                  }
+                  // Show ellipsis
+                  if (
+                    pageNumber === pagination.currentPage - 2 ||
+                    pageNumber === pagination.currentPage + 2
+                  ) {
+                    return (
+                      <span key={pageNumber} className="px-2 py-2 text-gray-500">
+                        ...
+                      </span>
+                    );
+                  }
+                  return null;
+                })}
+              </div>
+
+              <button
+                onClick={() => handlePageChange(pagination.currentPage + 1)}
+                disabled={!pagination.hasNextPage}
+                className={`px-4 py-2 rounded-lg ${
+                  pagination.hasNextPage
+                    ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                } transition-colors`}
+              >
+                Next
+              </button>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 };
 
-export default ShopBarbers;
+export default BarberList;

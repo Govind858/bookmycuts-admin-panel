@@ -7,7 +7,7 @@ export const fetchAllUsers = async (): Promise<any> => {
     return response ?? [];
   } catch (error) {
     console.error("error in fetchAllUsers api", error);
-    return []; 
+    return [];
   }
 };
 
@@ -185,6 +185,99 @@ export const fetchBarbersByShop = async (shopId: string): Promise<any> => {
     return response;
   } catch (error) {
     console.error("error in fetch barbers api", error);
+    throw error;
+  }
+};
+
+export const fetchStats = async () => {
+  try {
+    const response = await axios.get(`/shop/admin/stats`);
+    console.log("stats", response);
+    return response;
+  } catch (error) {
+    console.error("error in fetch stats api", error);
+    throw error;
+  }
+};
+
+export const fetchAllBarber = async (page) => {
+  try {
+    const response = await axios.get(`/shop/ViewAllBarbers`, {
+      params: { page }
+    });
+    console.log("barbers", response);
+    return response;
+  } catch (error) {
+    console.error("error in fetching barber api", error);
+    throw error;
+  }
+};
+
+
+export const adminRegistration = async (data) => {
+  try {
+    const response = await axios.post(`/auth/admin-registration`, {
+      data
+    });
+    console.log("response", response);
+    return response;
+  } catch (error) {
+    console.error("error in admin registration  api", error);
+    throw error;
+  }
+};
+
+export const adminLogin = async (data) => {
+  try {
+    const response = await axios.post(`/auth/admin-login`, {
+      data
+    });
+    console.log("response", response);
+    return response;
+  } catch (error) {
+    console.error("error in admin login  api", error);
+    throw error;
+  }
+};
+
+export const fetchCustomization = async () => {
+  try {
+    const response = await axios.get(`/auth/customization`);
+    console.log("fetchCustomization response", response);
+    return response;
+  } catch (error) {
+    console.error("error in fetchCustomization api", error);
+    throw error;
+  }
+};
+
+export const updateCustomization = async (data: any) => {
+  try {
+    const response = await axios.post(`/auth/customization`, data, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    console.log("updateCustomization response", response);
+    return response;
+  } catch (error) {
+    console.error("error in updateCustomization api", error);
+    throw error;
+  }
+};
+
+export const sendNotification = async (data: {
+  title: string;
+  body: string;
+  audience: "ALL" | "ALL_USERS" | "ALL_SHOP_OWNERS" | "SPECIFIC";
+  userIds?: string[];
+}): Promise<any> => {
+  try {
+    const response = await axios.post(`/auth/send-notification`, data);
+    console.log("sendNotification response:", response);
+    return response.data || response;
+  } catch (error) {
+    console.error("error in sendNotification api", error);
     throw error;
   }
 };
