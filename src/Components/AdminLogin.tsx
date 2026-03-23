@@ -1,5 +1,4 @@
-// src/components/Login.jsx
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { adminLogin } from '../Apis/Admin-Api';
 
@@ -11,7 +10,7 @@ export default function Login() {
 
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -21,12 +20,12 @@ export default function Login() {
       const response = await adminLogin(credentials);
 
       // Assuming your API returns { success: true } or similar
-      if (response?.success === true) {
+      if ((response as any)?.success === true) {
         navigate('admin');
       } else {
         setError('Invalid username or password');
       }
-    } catch (err) {
+    } catch (err: any) {
       setError(err?.response?.data?.message || 'Something went wrong');
     } finally {
       setLoading(false);

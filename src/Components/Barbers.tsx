@@ -1,11 +1,28 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { fetchAllBarber } from '../Apis/Admin-Api';
 
+interface Barber {
+  _id: string;
+  BarberName: string;
+  From: string;
+  shopId: string;
+  createdAt: string;
+}
+
+interface Pagination {
+  currentPage: number;
+  totalPages: number;
+  totalBarbers: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+  limit: number;
+}
+
 const BarberList = () => {
-  const [barbers, setBarbers] = useState([]);
+  const [barbers, setBarbers] = useState<Barber[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [pagination, setPagination] = useState({
+  const [error, setError] = useState<string | null>(null);
+  const [pagination, setPagination] = useState<Pagination>({
     currentPage: 1,
     totalPages: 1,
     totalBarbers: 0,
@@ -18,18 +35,18 @@ const BarberList = () => {
     loadBarbers(pagination.currentPage);
   }, [pagination.currentPage]);
 
-  const loadBarbers = async (page) => {
+  const loadBarbers = async (page: number) => {
     try {
       setLoading(true);
       setError(null);
       
       const response = await fetchAllBarber(page, pagination.limit);
       
-      if (response.success) {
-        setBarbers(response.data.barbers);
-        setPagination(response.data.pagination);
+      if ((response as any).success) {
+        setBarbers((response as any).data.barbers);
+        setPagination((response as any).data.pagination);
       } else {
-        setError(response.message);
+        setError((response as any).message);
       }
     } catch (err) {
       setError('Failed to load barbers. Please try again.');
@@ -39,14 +56,14 @@ const BarberList = () => {
     }
   };
 
-  const handlePageChange = (newPage) => {
+  const handlePageChange = (newPage: number) => {
     setPagination(prev => ({
       ...prev,
       currentPage: newPage
     }));
   };
 
-  const formatDate = (dateString) => {
+  const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',

@@ -200,10 +200,10 @@ export const fetchStats = async () => {
   }
 };
 
-export const fetchAllBarber = async (page) => {
+export const fetchAllBarber = async (page: number, limit?: number): Promise<any> => {
   try {
     const response = await axios.get(`/shop/ViewAllBarbers`, {
-      params: { page }
+      params: { page, limit }
     });
     console.log("barbers", response);
     return response;
@@ -214,7 +214,7 @@ export const fetchAllBarber = async (page) => {
 };
 
 
-export const adminRegistration = async (data) => {
+export const adminRegistration = async (data: any): Promise<any> => {
   try {
     const response = await axios.post(`/auth/admin-registration`, {
       data
@@ -227,7 +227,7 @@ export const adminRegistration = async (data) => {
   }
 };
 
-export const adminLogin = async (data) => {
+export const adminLogin = async (data: any): Promise<any> => {
   try {
     const response = await axios.post(`/auth/admin-login`, {
       data
@@ -240,7 +240,7 @@ export const adminLogin = async (data) => {
   }
 };
 
-export const fetchCustomization = async () => {
+export const fetchCustomization = async (): Promise<any> => {
   try {
     const response = await axios.get(`/auth/customization`);
     console.log("fetchCustomization response", response);
@@ -251,7 +251,7 @@ export const fetchCustomization = async () => {
   }
 };
 
-export const updateCustomization = async (data: any) => {
+export const updateCustomization = async (data: any): Promise<any> => {
   try {
     const response = await axios.post(`/auth/customization`, data, {
       headers: {
