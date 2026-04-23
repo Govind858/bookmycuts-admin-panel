@@ -171,7 +171,7 @@ const Dashboard = () => {
                       boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
                       padding: '12px'
                     }}
-                    formatter={(value: number) => [`₹${value.toLocaleString()}`, 'Amount']}
+                    formatter={(value: any) => [`₹${Number(value).toLocaleString()}`, 'Amount']}
                   />
                   <Bar 
                     dataKey="value" 
