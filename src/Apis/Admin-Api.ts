@@ -256,9 +256,9 @@ export const adminLogin = async (data: any): Promise<any> => {
   }
 };
 
-export const fetchCustomization = async (): Promise<any> => {
+export const fetchCustomization = async (screen: string = 'home'): Promise<any> => {
   try {
-    const response = await axios.get(`/auth/customization`);
+    const response = await axios.get(`/auth/customization?screen=${screen}`);
     console.log("fetchCustomization response", response);
     return response;
   } catch (error) {

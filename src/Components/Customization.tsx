@@ -6,6 +6,7 @@ const Customization = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ text: '', isError: false });
+  const [activeScreen, setActiveScreen] = useState<'home' | 'booking'>('home');
 
   // Form State
   const [textColor, setTextColor] = useState('#ffffff');
@@ -19,23 +20,25 @@ const Customization = () => {
 
   useEffect(() => {
     loadCustomization();
-  }, []);
+  }, [activeScreen]);
 
   const loadCustomization = async () => {
     try {
       setLoading(true);
-      const res = await fetchCustomization();
+      const res = await fetchCustomization(activeScreen);
       // Assuming response.data or response directly has the fields
       const data = res?.customization || res?.data?.customization || res?.data || res;
       if (data) {
-        if (data.textColor) setTextColor(data.textColor);
-        if (data.subTextColor) setSubTextColor(data.subTextColor);
-        if (data.backgroundColor) setBackgroundColor(data.backgroundColor);
-        if (data.backgroundImage) setBackgroundImageStr(data.backgroundImage);
+        setTextColor(data.textColor || '#ffffff');
+        setSubTextColor(data.subTextColor || '#9ca3af');
+        setBackgroundColor(data.backgroundColor || (activeScreen === 'home' ? '#0f172a' : '#1e1e2d'));
+        setBackgroundImageStr(data.backgroundImage || '');
+        setImageFile(null);
+        setImagePreview(null);
       }
     } catch (error) {
       console.error('Error fetching customization:', error);
-      setMessage({ text: 'Failed to load customization settings.', isError: true });
+      setMessage({ text: `Failed to load ${activeScreen} customization settings.`, isError: true });
     } finally {
       setLoading(false);
     }
@@ -57,6 +60,7 @@ const Customization = () => {
 
     try {
       const formData = new FormData();
+      formData.append('screen', activeScreen);
       formData.append('textColor', textColor);
       formData.append('subTextColor', subTextColor);
       formData.append('backgroundColor', backgroundColor);
@@ -66,14 +70,10 @@ const Customization = () => {
       }
 
       await updateCustomization(formData);
-      setMessage({ text: 'Customization settings saved successfully!', isError: false });
+      setMessage({ text: `${activeScreen.charAt(0).toUpperCase() + activeScreen.slice(1)} customization saved successfully!`, isError: false });
       
-      // Clear file selection after successful upload as URL should be available later
-      // The backend should ideally return the updated URL, but we can just reload
       setTimeout(() => {
         loadCustomization();
-        setImageFile(null);
-        setImagePreview(null);
         setMessage({ text: '', isError: false });
       }, 2000);
 
@@ -95,14 +95,31 @@ const Customization = () => {
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center gap-3">
-          <Palette size={32} className="text-blue-500" />
-          Theme Customization
-        </h1>
-        <p className="text-slate-500 mt-2">
-          Personalize the look and feel of the platform by adjusting colors and background images.
-        </p>
+      <div className="mb-8 flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center gap-3">
+            <Palette size={32} className="text-blue-500" />
+            Theme Customization
+          </h1>
+          <p className="text-slate-500 mt-2">
+            Personalize the look and feel of the platform screens.
+          </p>
+        </div>
+
+        <div className="flex gap-2 bg-slate-100 p-1 rounded-lg border">
+          <button
+            onClick={() => setActiveScreen('home')}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeScreen === 'home' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+          >
+            Home
+          </button>
+          <button
+            onClick={() => setActiveScreen('booking')}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeScreen === 'booking' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+          >
+            Booking
+          </button>
+        </div>
       </div>
 
       {message.text && (
@@ -116,7 +133,7 @@ const Customization = () => {
           
           {/* Colors Section */}
           <div>
-            <h2 className="text-xl font-semibold text-slate-800 mb-4 border-b pb-2">Colors</h2>
+            <h2 className="text-xl font-semibold text-slate-800 mb-4 border-b pb-2">{activeScreen.charAt(0).toUpperCase() + activeScreen.slice(1)} Colors</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Text Color */}
               <div className="space-y-2">
@@ -179,7 +196,7 @@ const Customization = () => {
 
           {/* Background Image Section */}
           <div>
-            <h2 className="text-xl font-semibold text-slate-800 mb-4 border-b pb-2">Background Image</h2>
+            <h2 className="text-xl font-semibold text-slate-800 mb-4 border-b pb-2">{activeScreen.charAt(0).toUpperCase() + activeScreen.slice(1)} Background Image</h2>
             <div className="space-y-4">
               <div className="flex items-center justify-center w-full">
                 <label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full h-64 border-2 border-slate-300 border-dashed rounded-lg cursor-pointer bg-slate-50 hover:bg-slate-100 transition-colors overflow-hidden relative">
@@ -235,15 +252,15 @@ const Customization = () => {
             className="px-6 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg hover:shadow-lg transition-all flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
           >
             {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-            {saving ? 'Saving...' : 'Save Changes'}
+            {saving ? 'Saving...' : `Save ${activeScreen.charAt(0).toUpperCase() + activeScreen.slice(1)} Settings`}
           </button>
         </div>
       </form>
       
-      {/* Live Preview (Optional, just to show how colors look) */}
+      {/* Live Preview */}
       <div className="mt-8 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hidden md:block">
-        <div className="p-4 border-b border-slate-100">
-          <h3 className="text-sm font-semibold text-slate-800">Live Component Preview</h3>
+        <div className="p-4 border-b border-slate-100 flex justify-between items-center">
+          <h3 className="text-sm font-semibold text-slate-800">{activeScreen.charAt(0).toUpperCase() + activeScreen.slice(1)} Preview</h3>
         </div>
         <div 
           className="p-6 flex justify-center items-center rounded-b-2xl" 
@@ -255,10 +272,21 @@ const Customization = () => {
             minHeight: '200px' 
           }}
         >
-          <div className="text-center bg-black/40 backdrop-blur-sm p-6 rounded-xl border border-white/10">
-            <h4 className="text-xl font-bold mb-1" style={{ color: textColor }}>BookMyCuts Platform</h4>
-            <p style={{ color: subTextColor }}>Experience the best grooming service</p>
-          </div>
+          {activeScreen === 'home' ? (
+            <div className="text-center bg-black/40 backdrop-blur-sm p-6 rounded-xl border border-white/10">
+              <h4 className="text-xl font-bold mb-1" style={{ color: textColor }}>BookMyCuts Platform</h4>
+              <p style={{ color: subTextColor }}>Experience the best grooming service</p>
+            </div>
+          ) : (
+            <div className="w-full max-w-sm bg-black/40 backdrop-blur-sm p-6 rounded-xl border border-white/10">
+              <h4 className="text-xl font-bold mb-4" style={{ color: textColor }}>Confirm Booking</h4>
+              <div className="space-y-3">
+                <div className="h-4 bg-white/20 rounded-full w-3/4"></div>
+                <div className="h-4 bg-white/20 rounded-full w-1/2"></div>
+                <div className="h-10 bg-blue-600 rounded-lg mt-4 flex items-center justify-center font-bold text-white">Book Now</div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
       
