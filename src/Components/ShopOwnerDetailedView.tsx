@@ -54,8 +54,11 @@ const ShopOwnerDetail: React.FC = () => {
   const [updateError, setUpdateError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!id) {
-      setError('No shop owner ID provided');
+    console.log('ShopOwnerDetail params:', { id });
+    console.log('Current path:', window.location.pathname);
+
+    if (!id || id === 'undefined') {
+      setError('No valid shop owner ID provided');
       setLoading(false);
       return;
     }

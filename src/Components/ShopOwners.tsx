@@ -82,6 +82,10 @@ const ShopOwnersList: React.FC = () => {
   });
 
   const handleView = (ownerId: string) => {
+    if (!ownerId) {
+      console.warn('Attempted to view shop owner detail without an ID');
+      return;
+    }
     navigate(`/admin/shop-owners/${ownerId}`);
   };
 

@@ -8,13 +8,12 @@ import ShopsList from './Components/Shops';
 import ShopDetialView from './Components/ShopDetialView';
 import PremiumShopsList from './Components/PremiumShop';
 import ShopOwnerDetail from './Components/ShopOwnerDetailedView';
-import ShopDetail from './Components/ShopDetialView';
 import Bookings from './Components/Bookings';
 import BookingDetails from './Components/BookingDetails';
 import ShopBookingsScreen from './Components/ShopBooking';
 import ShopServices from './Components/Service';
+import Barbers from './Components/Barbers';
 import ShopBarbers from './Components/Barbers';
-import Barbers from './Components/Barbers'
 import Login from './Components/AdminLogin';
 import Customization from './Components/Customization';
 import BroadcastNotification from './Components/BroadcastNotification';
@@ -35,9 +34,9 @@ function App() {
     <Route path="shop-owners/:id" element={<ShopOwnerDetail />} />
 
     <Route path="shops" element={<ShopsList />} />
-    <Route path="shops/:shopId" element={<ShopDetialView />} />
+    <Route path="shops/:id" element={<ShopDetialView />} />
     <Route path="premium-shops" element={<PremiumShopsList />} />
-    <Route path="shops-detail/:id" element={<ShopDetail />} />
+    <Route path="shops-detail/:id" element={<ShopDetialView />} />
 
     <Route path="bookings" element={<Bookings />} />
     <Route path="bookings/:id" element={<BookingDetails />} />

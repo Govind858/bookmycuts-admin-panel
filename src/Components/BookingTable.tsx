@@ -145,7 +145,7 @@ const BookingTable = ({ bookings }: BookingTableProps) => {
               </td>
               <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                 <Link
-                  to={`/bookings/${booking._id}`}
+                  to={`/admin/bookings/${booking._id}`}
                   className="text-blue-600 hover:text-blue-800 inline-flex items-center gap-1.5 transition-colors"
                 >
                   <Eye size={16} />

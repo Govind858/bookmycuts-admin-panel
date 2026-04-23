@@ -1,5 +1,21 @@
 import axios from "../Axios/Axios";
 
+export interface AdminStats {
+  usersCount: number;
+  shopOwnersCount: number;
+  shopsCount: number;
+  todayBookingsCount: number;
+  todaysTransactionAmount: number;
+  todaysTotalSalesValue: number;
+  todaysPlatformFees: number;
+}
+
+export interface StatsResponse {
+  success: boolean;
+  message: string;
+  stats: AdminStats;
+}
+
 export const fetchAllUsers = async (): Promise<any> => {
   try {
     const response = await axios.get("auth/getAllUser");
@@ -189,11 +205,11 @@ export const fetchBarbersByShop = async (shopId: string): Promise<any> => {
   }
 };
 
-export const fetchStats = async () => {
+export const fetchStats = async (): Promise<StatsResponse> => {
   try {
     const response = await axios.get(`/shop/admin/stats`);
     console.log("stats", response);
-    return response;
+    return response as unknown as StatsResponse;
   } catch (error) {
     console.error("error in fetch stats api", error);
     throw error;

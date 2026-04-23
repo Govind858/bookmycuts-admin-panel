@@ -57,7 +57,10 @@ const ShopDetail: React.FC = () => {
   const [updateError, setUpdateError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!id) {
+    console.log('ShopDetail params:', { id });
+    console.log('Current path:', window.location.pathname);
+
+    if (!id || id === 'undefined') {
       setError('No shop ID provided');
       setLoading(false);
       return;
@@ -97,7 +100,7 @@ const ShopDetail: React.FC = () => {
       const data = response?.data || response;
       if (data?.success) {
         alert('Shop deleted successfully');
-        navigate('/shops');
+        navigate('/admin/shops');
       } else {
         alert(data?.message || 'Failed to delete shop');
       }
@@ -187,7 +190,7 @@ const ShopDetail: React.FC = () => {
         <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-4">
             <button
-              onClick={() => navigate('/shops')}
+              onClick={() => navigate('/admin/shops')}
               className="p-2 rounded-full hover:bg-gray-200"
             >
               <ArrowLeft className="h-6 w-6 text-gray-700" />
@@ -415,7 +418,7 @@ const ShopDetail: React.FC = () => {
                   </button>
 
                   <button
-                    onClick={() => navigate(`/shop-booking/${id}`)}
+                    onClick={() => navigate(`/admin/shop-booking/${id}`)}
                     className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2"
                   >
                     <BookOpen className="h-5 w-5" />
@@ -423,7 +426,7 @@ const ShopDetail: React.FC = () => {
                   </button>
 
                   <button
-                    onClick={() => navigate(`/shop-barbers/${id}`)}
+                    onClick={() => navigate(`/admin/shop-barbers/${id}`)}
                     className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center justify-center gap-2"
                   >
                     <Users className="h-5 w-5" />
@@ -431,7 +434,7 @@ const ShopDetail: React.FC = () => {
                   </button>
 
                   <button
-                    onClick={() => navigate(`/shop-service/${id}`)}
+                    onClick={() => navigate(`/admin/shop-service/${id}`)}
                     className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center justify-center gap-2"
                   >
                     <Scissors className="h-5 w-5" />

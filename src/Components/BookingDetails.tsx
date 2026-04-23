@@ -135,7 +135,7 @@ const BookingDetails = () => {
     <div className="max-w-5xl mx-auto px-4 py-6 md:py-8">
       <div className="mb-6">
         <Link
-          to="/bookings"
+          to="/admin/bookings"
           className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium transition-colors"
         >
           <ArrowLeft size={18} />
