@@ -17,6 +17,8 @@ import ShopBarbers from './Components/Barbers';
 import Login from './Components/AdminLogin';
 import Customization from './Components/Customization';
 import BroadcastNotification from './Components/BroadcastNotification';
+import Transactions from './Components/Transactions';
+import ProtectedRoute from './Components/ProtectedRoute';
 
 function App() {
   return (
@@ -24,7 +26,8 @@ function App() {
   {/* Root Login */}
   <Route path="/" element={<Login />} />
 
-  {/* Dashboard Layout */}
+  {/* Protected Admin Routes */}
+  <Route element={<ProtectedRoute />}>
   <Route path="/admin" element={<MainLayout />}>
 
     <Route index element={<Dashboard />} />
@@ -48,7 +51,9 @@ function App() {
     <Route path="barbers" element={<Barbers />} />
     <Route path="customization" element={<Customization />} />
     <Route path="notifications" element={<BroadcastNotification />} />
+    <Route path="transactions" element={<Transactions />} />
 
+  </Route>
   </Route>
 </Routes>
 

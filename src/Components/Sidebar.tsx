@@ -1,7 +1,7 @@
 // src/components/Sidebar.tsx
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { X, Users, Store, Crown, TrendingUp, ShoppingBag, Book, Palette, Bell } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { X, Users, Store, Crown, TrendingUp, ShoppingBag, Book, Palette, Bell, CreditCard, LogOut } from 'lucide-react';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -10,6 +10,13 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const location = useLocation(); // ← get current route
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    navigate('/');
+  };
 
   const menuItems = [
     { id: 'dashboard', path: '/admin', label: 'Dashboard', icon: TrendingUp },
@@ -18,6 +25,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     { Sidebarid: 'shops', path: '/admin/shops', label: 'Shops', icon: Store },
     { id: 'users', path: '/admin/users', label: 'Users', icon: ShoppingBag },
     { id: 'booking', path: '/admin/bookings', label: 'Bookings', icon: Book },
+    { id: 'transactions', path: '/admin/transactions', label: 'Transactions', icon: CreditCard },
     { id: 'customization', path: '/admin/customization', label: 'Customization', icon: Palette },
     { id: 'notifications', path: '/admin/notifications', label: 'Notifications', icon: Bell },
   ];
@@ -92,8 +100,19 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           </div>
 
           {/* Footer */}
-          <div className="mt-auto p-6 pt-4 border-t border-slate-700/50 text-xs text-slate-400">
-            Admin v1.0 • {new Date().getFullYear()}
+          <div className="mt-auto p-6 pt-4 border-t border-slate-700/50">
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-3 w-full px-4 py-3 rounded-lg
+                         text-red-400 hover:bg-red-500/10 transition-all duration-200
+                         font-medium text-sm"
+            >
+              <LogOut size={20} />
+              <span>Logout</span>
+            </button>
+            <p className="text-xs text-slate-400 mt-3 px-4">
+              Admin v1.0 • {new Date().getFullYear()}
+            </p>
           </div>
         </div>
       </aside>

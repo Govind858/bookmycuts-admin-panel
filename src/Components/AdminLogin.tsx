@@ -16,11 +16,18 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const credentials = { username, password };
+      const credentials = { userName: username, password };
       const response = await adminLogin(credentials);
 
-      // Assuming your API returns { success: true } or similar
       if ((response as any)?.success === true) {
+        // Save tokens to localStorage
+        const { accessToken, refreshToken } = response as any;
+        if (accessToken) {
+          localStorage.setItem('accessToken', accessToken);
+        }
+        if (refreshToken) {
+          localStorage.setItem('refreshToken', refreshToken);
+        }
         navigate('admin');
       } else {
         setError('Invalid username or password');

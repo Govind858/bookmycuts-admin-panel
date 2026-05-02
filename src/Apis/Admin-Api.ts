@@ -245,9 +245,7 @@ export const adminRegistration = async (data: any): Promise<any> => {
 
 export const adminLogin = async (data: any): Promise<any> => {
   try {
-    const response = await axios.post(`/auth/admin-login`, {
-      data
-    });
+    const response = await axios.post(`/auth/admin-login`, data);
     console.log("response", response);
     return response;
   } catch (error) {
@@ -294,6 +292,22 @@ export const sendNotification = async (data: {
     return response.data || response;
   } catch (error) {
     console.error("error in sendNotification api", error);
+    throw error;
+  }
+};
+
+export const fetchTransactionLogs = async (
+  page: number = 1,
+  limit: number = 20
+): Promise<any> => {
+  try {
+    const response = await axios.get(`/shop/admin/transaction-logs`, {
+      params: { page, limit },
+    });
+    console.log("transaction logs:", response);
+    return response;
+  } catch (error) {
+    console.error("error in fetchTransactionLogs api", error);
     throw error;
   }
 };
