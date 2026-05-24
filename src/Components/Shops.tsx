@@ -1,7 +1,7 @@
 // src/pages/admin/ShopsList.tsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; // ← added
-import { fetchAllShops } from "../Apis/Admin-Api";
+import { fetchAdminShops, verifyShop } from "../Apis/Admin-Api";
 import { Store, Crown, Eye, Search } from 'lucide-react';
 
 // ────────────────────────────────────────────────
@@ -16,6 +16,7 @@ interface Shop {
   Timing?: string;
   email?: string;
   isPremium?: boolean;
+  isVerified?: boolean;
   createdAt?: string;
   updatedAt?: string;
   __v?: number;
@@ -37,7 +38,7 @@ const ShopsList: React.FC = () => {
         setLoading(true);
         setError(null);
 
-        const response = await fetchAllShops();
+        const response = await fetchAdminShops();
 
         let shopsData: Shop[] = [];
         if (Array.isArray(response)) {
@@ -66,6 +67,25 @@ const ShopsList: React.FC = () => {
 
     loadShops();
   }, []);
+
+  const handleToggleVerify = async (shopId: string, currentStatus: boolean) => {
+    try {
+      const newStatus = !currentStatus;
+      const response = await verifyShop(shopId, newStatus);
+      if (response && response.success) {
+        setShops((prevShops) =>
+          prevShops.map((shop) =>
+            shop._id === shopId ? { ...shop, isVerified: newStatus } : shop
+          )
+        );
+      } else {
+        alert(response?.message || "Failed to update shop verification status");
+      }
+    } catch (err: any) {
+      console.error("Error toggling shop verification:", err);
+      alert(err.message || "Failed to update verification status. Please try again.");
+    }
+  };
 
   // Filter shops based on search term
   const filteredShops = shops.filter((shop) => {
@@ -200,26 +220,49 @@ const ShopsList: React.FC = () => {
                       </td>
 
                       <td className="px-6 py-4 whitespace-nowrap">
-                        {shop.isPremium ? (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
-                            <Crown size={14} className="mr-1" />
-                            Premium
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
-                            Standard
-                          </span>
-                        )}
+                        <div className="flex flex-col gap-1.5">
+                          {shop.isPremium ? (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 w-max">
+                              <Crown size={14} className="mr-1" />
+                              Premium
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700 w-max">
+                              Standard
+                            </span>
+                          )}
+                          {shop.isVerified ? (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 w-max">
+                              Verified
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-100 text-rose-800 w-max">
+                              Unverified
+                            </span>
+                          )}
+                        </div>
                       </td>
 
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button
-                          onClick={() => handleViewShop(shop._id)}
-                          className="text-emerald-600 hover:text-emerald-800 flex items-center gap-1 justify-end ml-auto transition"
-                        >
-                          <Eye size={16} />
-                          View
-                        </button>
+                        <div className="flex items-center gap-3 justify-end">
+                          <button
+                            onClick={() => handleToggleVerify(shop._id, shop.isVerified || false)}
+                            className={`px-3 py-1.5 rounded-lg border text-xs font-medium transition ${
+                              shop.isVerified
+                                ? 'text-rose-600 border-rose-200 bg-rose-50 hover:bg-rose-100'
+                                : 'text-blue-600 border-blue-200 bg-blue-50 hover:bg-blue-100'
+                            }`}
+                          >
+                            {shop.isVerified ? 'Unverify' : 'Verify'}
+                          </button>
+                          <button
+                            onClick={() => handleViewShop(shop._id)}
+                            className="text-emerald-600 hover:text-emerald-800 flex items-center gap-1 transition"
+                          >
+                            <Eye size={16} />
+                            View
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}

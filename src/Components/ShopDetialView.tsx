@@ -19,7 +19,7 @@ import {
   Users,
   BookOpen,
 } from 'lucide-react';
-import { fetchShop, deleteShop, updateShop } from '../Apis/Admin-Api'; // adjust path
+import { fetchShop, deleteShop, updateShop, verifyShop } from '../Apis/Admin-Api'; // adjust path
 
 interface Shop {
   _id: string;
@@ -35,6 +35,7 @@ interface Shop {
   website?: string;
   ShopOwnerId: string;
   IsPremium: boolean;
+  isVerified?: boolean;
   createdAt: string;
   updatedAt: string;
   ProfileImage?: string;
@@ -159,6 +160,29 @@ const ShopDetail: React.FC = () => {
     }
   };
 
+  const [verifying, setVerifying] = useState(false);
+
+  const handleToggleVerify = async () => {
+    if (!id || !shop) return;
+
+    setVerifying(true);
+    try {
+      const newStatus = !shop.isVerified;
+      const response = await verifyShop(id, newStatus);
+      if (response && response.success) {
+        setShop((prev) => prev ? { ...prev, isVerified: newStatus } : null);
+        alert(`Shop ${newStatus ? 'verified' : 'unverified'} successfully`);
+      } else {
+        alert(response?.message || 'Failed to update shop verification status');
+      }
+    } catch (err: any) {
+      console.error('Error toggling shop verification:', err);
+      alert(err.message || 'Error updating verification status');
+    } finally {
+      setVerifying(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -212,6 +236,11 @@ const ShopDetail: React.FC = () => {
                 <span className="font-medium text-amber-800">Premium</span>
               </div>
             )}
+            <div className={`flex items-center gap-2 px-4 py-1.5 rounded-full ${
+              shop.isVerified ? 'bg-blue-100 text-blue-800' : 'bg-rose-100 text-rose-800'
+            }`}>
+              <span className="font-medium">{shop.isVerified ? 'Verified' : 'Unverified'}</span>
+            </div>
           </div>
         </div>
 
@@ -393,6 +422,7 @@ const ShopDetail: React.FC = () => {
                       <DetailItem icon={Building2} label="Shop ID" value={shop._id} />
                       <DetailItem icon={Users} label="Owner ID" value={shop.ShopOwnerId} />
                       <DetailItem icon={Star} label="Premium Status" value={shop.IsPremium ? 'Yes (Premium)' : 'No'} />
+                      <DetailItem icon={Building2} label="Verification Status" value={shop.isVerified ? 'Verified' : 'Unverified'} />
                       <DetailItem
                         icon={Calendar}
                         label="Created"
@@ -408,13 +438,40 @@ const ShopDetail: React.FC = () => {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                   <button
                     onClick={handleEditToggle}
                     className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center justify-center gap-2"
                   >
                     <Edit className="h-5 w-5" />
                     Edit Shop
+                  </button>
+
+                  <button
+                    onClick={handleToggleVerify}
+                    disabled={verifying}
+                    className={`px-6 py-3 text-white rounded-lg flex items-center justify-center gap-2 transition disabled:opacity-55 ${
+                      shop.isVerified
+                        ? 'bg-rose-600 hover:bg-rose-700'
+                        : 'bg-emerald-600 hover:bg-emerald-700'
+                    }`}
+                  >
+                    {verifying ? (
+                      <>
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                        Updating...
+                      </>
+                    ) : shop.isVerified ? (
+                      <>
+                        <X className="h-5 w-5" />
+                        Unverify Shop
+                      </>
+                    ) : (
+                      <>
+                        <Star className="h-5 w-5" />
+                        Verify Shop
+                      </>
+                    )}
                   </button>
 
                   <button

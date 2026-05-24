@@ -52,6 +52,17 @@ export const fetchAllShops = async (): Promise<any> => {
   }
 };
 
+export const fetchAdminShops = async (): Promise<any> => {
+  try {
+    const response = await axios.get('/shop/admin/shops?limit=1000');
+    console.log("admin shops response", response);
+    return response;
+  } catch (error) {
+    console.error("error in fetch admin shops api", error);
+    throw error;
+  }
+};
+
 export const fetchAllPremiumShops = async (): Promise<any> => {
   try {
     const response = await axios.get('shop/getAllPremium');
@@ -308,6 +319,17 @@ export const fetchTransactionLogs = async (
     return response;
   } catch (error) {
     console.error("error in fetchTransactionLogs api", error);
+    throw error;
+  }
+};
+
+export const verifyShop = async (shopId: string, status: boolean): Promise<any> => {
+  try {
+    const response = await axios.post('/shop/admin/verify-shop', { shopId, status });
+    console.log("verifyShop response:", response);
+    return response;
+  } catch (error) {
+    console.error("error in verifyShop api", error);
     throw error;
   }
 };
