@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { fetchAllBarber } from '../Apis/Admin-Api';
+import { useParams } from 'react-router-dom';
+import { fetchAllBarber, fetchBarbersByShop } from '../Apis/Admin-Api';
 
 interface Barber {
   _id: string;
@@ -19,6 +20,7 @@ interface Pagination {
 }
 
 const BarberList = () => {
+  const { shopId } = useParams<{ shopId?: string }>();
   const [barbers, setBarbers] = useState<Barber[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -33,20 +35,38 @@ const BarberList = () => {
 
   useEffect(() => {
     loadBarbers(pagination.currentPage);
-  }, [pagination.currentPage]);
+  }, [pagination.currentPage, shopId]);
 
   const loadBarbers = async (page: number) => {
     try {
       setLoading(true);
       setError(null);
       
-      const response = await fetchAllBarber(page, pagination.limit);
-      
-      if ((response as any).success) {
-        setBarbers((response as any).data.barbers);
-        setPagination((response as any).data.pagination);
+      let response: any;
+      if (shopId) {
+        response = await fetchBarbersByShop(shopId);
+        if (response.success) {
+          const barberList = response.service || [];
+          setBarbers(barberList);
+          setPagination({
+            currentPage: 1,
+            totalPages: 1,
+            totalBarbers: barberList.length,
+            hasNextPage: false,
+            hasPreviousPage: false,
+            limit: pagination.limit
+          });
+        } else {
+          setError(response.message || 'Failed to load shop barbers.');
+        }
       } else {
-        setError((response as any).message);
+        response = await fetchAllBarber(page, pagination.limit);
+        if (response.success) {
+          setBarbers(response.data.barbers);
+          setPagination(response.data.pagination);
+        } else {
+          setError(response.message || 'Failed to load all barbers.');
+        }
       }
     } catch (err) {
       setError('Failed to load barbers. Please try again.');
@@ -97,7 +117,9 @@ const BarberList = () => {
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Barbers Management</h1>
+        <h1 className="text-2xl font-bold text-gray-800">
+          {shopId ? 'Shop Barbers' : 'Barbers Management'}
+        </h1>
         <div className="text-sm text-gray-600">
           Total Barbers: <span className="font-semibold">{pagination.totalBarbers}</span>
         </div>
