@@ -145,7 +145,10 @@ const Transactions = () => {
     });
   };
 
-  const formatCurrency = (amount: number) => `₹${amount.toLocaleString('en-IN')}`;
+  const formatCurrency = (amount: number | undefined | null) => {
+  const safeAmount = amount ?? 0;
+  return `₹${safeAmount.toLocaleString('en-IN')}`;
+};
 
   const filteredTransactions = transactions.filter((t) => {
     if (!searchTerm) return true;
@@ -218,23 +221,29 @@ const Transactions = () => {
 
         {/* Search & Summary */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-          <div className="sm:col-span-2 relative">
-            <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search by Order ID, customer name, email, phone…"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-400 transition-all"
-            />
-          </div>
+            <div className="sm:col-span-2 flex items-center relative border border-gray-200 bg-white rounded-xl focus-within:ring-2 focus-within:ring-blue-500/40 focus-within:border-blue-400 transition-all">
+  {/* Left-aligned icon wrapper that inherits the height of the parent wrapper */}
+  <div className="pl-3.5 flex items-center text-gray-400 pointer-events-none">
+    <Search size={18} />
+  </div>
+  
+  {/* The input retains py-3 to preserve the exact original height */}
+  <input
+    type="text"
+    placeholder="Search by Order ID, customer name, email, phone…"
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+    className="w-full pl-2.5 pr-4 py-3 bg-transparent text-sm focus:outline-none"
+  />
+</div>
           <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl p-4 text-white flex items-center justify-between">
-            <div>
-              <p className="text-xs text-blue-100 font-medium uppercase tracking-wide">Page Total</p>
-              <p className="text-xl font-bold mt-0.5">
-                {formatCurrency(filteredTransactions.reduce((sum, t) => sum + t.amount, 0))}
-              </p>
-            </div>
+        <div>
+  <p className="text-xs text-blue-100 font-medium uppercase tracking-wide">Page Total</p>
+  <p className="text-xl font-bold mt-0.5">
+    {/* Change t.amount to (t.amount ?? 0) to safely fallback to 0 if it's missing */}
+    {formatCurrency(filteredTransactions.reduce((sum, t) => sum + (t.amount ?? 0), 0))}
+  </p>
+</div>
             <div className="p-3 bg-white/20 rounded-lg backdrop-blur-sm">
               <IndianRupee size={22} />
             </div>

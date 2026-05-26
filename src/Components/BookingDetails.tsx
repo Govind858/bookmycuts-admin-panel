@@ -38,7 +38,7 @@ interface Booking {
   };
   barberId: {
     BarberName: string;
-  };
+  } | null;
 }
 
 const BookingDetails = () => {
