@@ -259,7 +259,7 @@ const BookingDetails = () => {
               </div>
               <div>
                 <div className="text-sm text-gray-500">Barber</div>
-                <div className="font-medium text-gray-900">{booking.barberId.BarberName}</div>
+                <div className="font-medium text-gray-900">{booking.barberId ? booking.barberId.BarberName : "Not Assigned"}</div>
               </div>
             </div>
           </div>
