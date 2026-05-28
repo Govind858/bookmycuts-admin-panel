@@ -1,5 +1,6 @@
 // src/pages/admin/ShopDetail.tsx
 import React, { useState, useEffect } from 'react';
+
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Building2,
@@ -56,6 +57,7 @@ const ShopDetail: React.FC = () => {
   const [formData, setFormData] = useState<Partial<Shop>>({});
   const [updating, setUpdating] = useState(false);
   const [updateError, setUpdateError] = useState<string | null>(null);
+
 
   useEffect(() => {
     console.log('ShopDetail params:', { id });
@@ -447,6 +449,7 @@ const ShopDetail: React.FC = () => {
                     Edit Shop
                   </button>
 
+
                   <button
                     onClick={handleToggleVerify}
                     disabled={verifying}
@@ -542,23 +545,22 @@ const ShopDetail: React.FC = () => {
           </div>
         </div>
       </div>
+
     </div>
   );
 };
 
 // Simple reusable detail item for display mode
-const DetailItem: React.FC<{
-  icon: React.ElementType;
-  label: string;
-  value: string | number | React.ReactNode;
-}> = ({ icon: Icon, label, value }) => (
-  <div className="flex items-start gap-4">
-    <Icon className="h-6 w-6 text-gray-500 mt-1" />
-    <div>
-      <div className="text-sm font-medium text-gray-500">{label}</div>
-      <div className="text-base text-gray-900 mt-0.5">{value || '—'}</div>
+const DetailItem = (props) => {
+  const { icon: Icon, label, value } = props;
+  return (
+    <div className="flex items-start gap-4">
+      <Icon className="h-6 w-6 text-gray-500 mt-1" />
+      <div>
+        <div className="text-sm font-medium text-gray-500">{label}</div>
+        <div className="text-base text-gray-900 mt-0.5">{value || '—'}</div>
+      </div>
     </div>
-  </div>
-);
-
+  );
+};
 export default ShopDetail;

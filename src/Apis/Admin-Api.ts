@@ -323,6 +323,28 @@ export const fetchTransactionLogs = async (
   }
 };
 
+export const addService = async (data: any): Promise<any> => {
+  try {
+    const response = await axios.post('/shop/addService', data);
+    console.log('addService response:', response);
+    return response;
+  } catch (error) {
+    console.error('error in addService api', error);
+    throw error;
+  }
+};
+
+export const addBarber = async (data: any): Promise<any> => {
+  try {
+    const response = await axios.post('/shop/addBarber', data);
+    console.log('addBarber response:', response);
+    return response;
+  } catch (error) {
+    console.error('error in addBarber api', error);
+    throw error;
+  }
+};
+
 export const verifyShop = async (shopId: string, status: boolean): Promise<any> => {
   try {
     const response = await axios.post('/shop/admin/verify-shop', { shopId, status });
@@ -330,6 +352,50 @@ export const verifyShop = async (shopId: string, status: boolean): Promise<any> 
     return response;
   } catch (error) {
     console.error("error in verifyShop api", error);
+    throw error;
+  }
+};
+
+export const updateBarber = async (id: string, data: any): Promise<any> => {
+  try {
+    const response = await axios.put(`/shop/updateBarber/${id}`, data);
+    console.log("updateBarber response:", response);
+    return response;
+  } catch (error) {
+    console.error("error in updateBarber api", error);
+    throw error;
+  }
+};
+
+export const deleteBarber = async (id: string, shopId: string): Promise<any> => {
+  try {
+    const response = await axios.delete(`/shop/deleteBarber/${id}/${shopId}`);
+    console.log("deleteBarber response:", response);
+    return response;
+  } catch (error) {
+    console.error("error in deleteBarber api", error);
+    throw error;
+  }
+};
+
+export const editService = async (id: string, data: any): Promise<any> => {
+  try {
+    const response = await axios.put(`/shop/editService/${id}`, data);
+    console.log("editService response:", response);
+    return response;
+  } catch (error) {
+    console.error("error in editService api", error);
+    throw error;
+  }
+};
+
+export const deleteService = async (id: string): Promise<any> => {
+  try {
+    const response = await axios.delete(`/shop/deleteService/${id}`);
+    console.log("deleteService response:", response);
+    return response;
+  } catch (error) {
+    console.error("error in deleteService api", error);
     throw error;
   }
 };
